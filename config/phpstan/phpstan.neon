@@ -1,0 +1,12 @@
+parameters:
+    level: 4
+    scanFiles:
+        - ../../vendor/mockery/mockery/library/helpers.php
+        - ../../vendor/hamcrest/hamcrest-php/hamcrest/Hamcrest.php
+        - ../../src/functions.php
+    parallel:
+        maximumNumberOfProcesses: 4
+    fileExtensions:
+        - php
+    ignoreErrors:
+        - '#Call to an undefined method Mockery\\ExpectationInterface|Mockery\\HigherOrderMessage::once\(\).#'

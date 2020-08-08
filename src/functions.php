@@ -1,7 +1,9 @@
 <?php
 
-use SebastianKnott\HamcrestObjectAccessor\HasProperty;
+declare(strict_types=1);
+
 use Hamcrest\Matcher;
+use SebastianKnott\HamcrestObjectAccessor\HasProperty;
 
 if (!function_exists('hasProperty')) {
     /**

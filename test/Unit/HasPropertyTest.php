@@ -1,32 +1,29 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SebastianKnott\HamcrestObjectAccessor\Test\Unit;
 
-use SebastianKnott\HamcrestObjectAccessor\HasProperty;
-use SebastianKnott\HamcrestObjectAccessor\Test\Unit\fixtures\HasPropertyFixture;
 use Hamcrest\Description;
 use Hamcrest\Matcher;
-use Mockery;
+use InvalidArgumentException;
+use Mockery\LegacyMockInterface;
 use Mockery\MockInterface;
-use PHPUnit\Framework\TestCase;
+use SebastianKnott\DevUtils\Test\Infrastructure\DevToolsTestCase;
+use SebastianKnott\HamcrestObjectAccessor\HasProperty;
+use SebastianKnott\HamcrestObjectAccessor\Test\Unit\Fixtures\HasPropertyFixture;
 use stdClass;
 
-class HasPropertyTest extends TestCase
+class HasPropertyTest extends DevToolsTestCase
 {
     /** @var string */
     private $propertyName;
-    /** @var MockInterface|Matcher $mockedMatcher */
+
+    /** @var Matcher|LegacyMockInterface|MockInterface $mockedMatcher */
     private $mockedMatcher;
+
     /** @var HasProperty */
     private $subject;
-
-    protected function setUp()
-    {
-        $this->propertyName  = 'MyItem';
-        $this->mockedMatcher = Mockery::mock(Matcher::class);
-
-        $this->subject = new HasProperty($this->propertyName, $this->mockedMatcher);
-    }
 
     /**
      * @test
@@ -46,8 +43,7 @@ class HasPropertyTest extends TestCase
      */
     public function describeTo()
     {
-        /** @var MockInterface|Description $mockedDescription */
-        $mockedDescription = Mockery::mock(Description::class);
+        $mockedDescription = mock(Description::class);
         $mockedDescription->shouldReceive('appendText')->once()
             ->with(
                 'an object with public property "' . $this->propertyName
@@ -59,7 +55,12 @@ class HasPropertyTest extends TestCase
         $this->subject->describeTo($mockedDescription);
     }
 
-    public function matchesReturnsExpectedResultDataProvider()
+    /**
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     *
+     * @return array<mixed>
+     */
+    public function matchesReturnsExpectedResultDataProvider(): array
     {
         return [
             'object without property' => [new stdClass(), 'bla', 'blub', false],
@@ -67,25 +68,25 @@ class HasPropertyTest extends TestCase
                 new HasPropertyFixture(),
                 'bla',
                 'blub',
-                true
+                true,
             ],
             'object with getter'      => [
                 new HasPropertyFixture(),
                 'getable',
                 'blub',
-                true
+                true,
             ],
             'object with isser'       => [
                 new HasPropertyFixture(),
                 'issable',
                 true,
-                true
+                true,
             ],
             'object with hasser'      => [
                 new HasPropertyFixture(),
                 'hassable',
                 true,
-                true
+                true,
             ],
         ];
     }
@@ -94,10 +95,10 @@ class HasPropertyTest extends TestCase
      * @test
      * @dataProvider matchesReturnsExpectedResultDataProvider
      *
-     * @param mixed $item
+     * @param mixed  $item
      * @param string $propertyName
      * @param string $propertyValue
-     * @param bool $expectedResult
+     * @param bool   $expectedResult
      */
     public function matchesSafelyReturnsExpectedResult(
         $item,
@@ -112,20 +113,15 @@ class HasPropertyTest extends TestCase
 
     /**
      * @test
-     * @dataProvider matchesReturnsExpectedResultDataProvider
-     *
-     * @param mixed $item
-     * @param string $propertyName
-     * @param string $propertyValue
-     * @param bool $expectedResult
      */
-    public function describeMismatchSafelyReturnsExpectedResult(
-        $item,
-        $propertyName,
-        $propertyValue
-    ) {
+    public function describeMismatchSafelyReturnsExpectedResult()
+    {
+        $item          = new stdClass();
+        $propertyName  = 'bla';
+        $propertyValue = 'blub';
+
         /** @var MockInterface|Description $mockedDescription */
-        $mockedDescription = Mockery::mock(Description::class);
+        $mockedDescription = mock(Description::class);
         $mockedDescription->shouldReceive('appendText')->once()
             ->with(
                 'neither the property "' . $propertyName . '" nor one of the methods '
@@ -133,13 +129,54 @@ class HasPropertyTest extends TestCase
                 . '()", "has' . ucfirst($propertyName) . '()", "__get()", '
                 . '"__call()" exist and have public access in class "stdClass" '
             )->andReturnSelf();
-        $mockedDescription->shouldReceive('appendText')->once()
-            ->with('was ')->andReturnSelf();
-        $mockedDescription->shouldReceive('appendValue')->once()
-            ->with('blub')->andReturnSelf();
 
         $subject = HasProperty::hasProperty($propertyName, $propertyValue);
         $subject->describeMismatchSafely($item, $mockedDescription);
     }
 
+    /**
+     * @test
+     */
+    public function matchesSafelyParameterNeedsToBeObject()
+    {
+        $result = $this->subject->matches('asd');
+        self::assertFalse($result);
+    }
+
+    /**
+     * @test
+     */
+    public function constructorPropertyNameNeedsToBeString()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(1596896381);
+
+        new HasProperty(new stdClass(), objectValue());
+    }
+
+    /**
+     * @test
+     */
+    public function diagnosticDescriptionIsForwarded()
+    {
+        $forgedObject      = new stdClass();
+        $forgedObject->bla = 'wubwub';
+
+        $mockedMatcher = mock(Matcher::class);
+        $mockedMatcher->shouldReceive('describeMismatch')->once()
+            ->with('wubwub', anInstanceOf(Description::class));
+        $mockedMatcher->shouldReceive('matches')->once()
+            ->with('wubwub')->andReturn(true);
+
+        $subject = new HasProperty('bla', $mockedMatcher);
+        $subject->matchesSafely($forgedObject);
+    }
+
+    protected function setUp()
+    {
+        $this->propertyName  = 'MyItem';
+        $this->mockedMatcher = mock(Matcher::class);
+
+        $this->subject = new HasProperty($this->propertyName, $this->mockedMatcher);
+    }
 }

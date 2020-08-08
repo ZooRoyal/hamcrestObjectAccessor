@@ -1,16 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit backupGlobals="false"
-         beStrictAboutTestsThatDoNotTestAnything="false"
-         bootstrap="vendor/autoload.php"
-         strict="true"
-         verbose="true">
-    <testsuite name="Test Suite">
-        <directory suffix="Test.php">tests</directory>
-        <exclude>fixture</exclude>
-    </testsuite>
+<phpunit
+        executionOrder="random"
+        resolveDependencies="true"
+        beStrictAboutTestsThatDoNotTestAnything="false"
+        colors="true"
+        bootstrap="vendor/autoload.php">
+    <testsuites>
+        <testsuite name="AllUnitTests">
+            <directory>./test/Unit/</directory>
+            <directory>./test/Integration/</directory>
+        </testsuite>
+    </testsuites>
     <filter>
         <whitelist addUncoveredFilesFromWhitelist="true">
             <directory suffix=".php">src</directory>
         </whitelist>
     </filter>
+    <logging>
+        <log type="coverage-text" target="php://stdout"/>
+        <log type="coverage-xml" target="./tmp/phpunit/coverage-xml"/>
+        <log type="coverage-clover" target="./tmp/phpunit/clover.xml"/>
+        <log type="junit" target="./tmp/phpunit/junit.xml"/>
+    </logging>
 </phpunit>

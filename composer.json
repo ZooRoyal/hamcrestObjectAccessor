@@ -1,36 +1,46 @@
 {
-    "name": "sebastianknott/hamcrest-object-accessor",
-    "description": "Adds a Matcher to Hamcrest which can access properties and methods of objects.",
-    "license": "GPL-3.0-or-later",
-    "type": "library",
-    "require": {
-        "php": ">=5.6",
-        "hamcrest/hamcrest-php": "^2.0",
-        "symfony/property-access": "^2.8|^3.4|^4"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "^5.7.27|6.5",
-        "mockery/mockery": "^1.0",
-        "zooroyal/coding-standard": "^1.5.13",
-        "roave/security-advisories": "dev-master"
-    },
-    "autoload": {
-        "psr-4": {
-            "SebastianKnott\\HamcrestObjectAccessor\\": "src/"
-        }
-    },
-    "autoload-dev": {
-        "files": [
-            "vendor/hamcrest/hamcrest-php/hamcrest/Hamcrest.php"
-        ],
-        "psr-4": {
-            "SebastianKnott\\HamcrestObjectAccessor\\Test\\": "tests/"
-        }
-    },
-    "authors": [
-        {
-            "name": "Sebastian Knott",
-            "email": "sebastian@sebastianknott.de"
-        }
-    ]
+  "name": "sebastianknott/hamcrest-object-accessor",
+  "description": "Adds a Matcher to Hamcrest which can access properties and methods of objects.",
+  "authors": [
+    {
+      "name": "Sebastian Knott",
+      "email": "sebastian@sebastianknott.de"
+    }
+  ],
+  "license": "GPL-3.0-or-later",
+  "type": "library",
+  "require": {
+    "php": ">=7.0",
+    "hamcrest/hamcrest-php": "^2.0",
+    "symfony/property-access": "^2.8|^3.4|^4"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^7.0",
+    "roave/security-advisories": "dev-master",
+    "sebastianknott/dev-utils": "^0.2.3",
+    "sensiolabs/security-checker": ">2"
+  },
+  "autoload": {
+    "psr-4": {
+      "SebastianKnott\\HamcrestObjectAccessor\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "files": [
+      "vendor/hamcrest/hamcrest-php/hamcrest/Hamcrest.php"
+    ],
+    "psr-4": {
+      "SebastianKnott\\HamcrestObjectAccessor\\Test\\": "test/"
+    }
+  },
+  "scripts": {
+    "check": "vendor/bin/dep check",
+    "ci": "vendor/bin/dep ci",
+    "sca" : "vendor/bin/dep sca",
+    "fix" : "vendor/bin/dep sca:phpcs:fix",
+    "test": "vendor/bin/dep test"
+  },
+  "config": {
+    "sort-packages" : true
+  }
 }

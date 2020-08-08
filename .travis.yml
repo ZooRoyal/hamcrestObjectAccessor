@@ -3,26 +3,43 @@ language: php
 
 # list any PHP version you want to test against
 php:
-  - 5.6
   - 7.0
+  - 7.1
+  - 7.2
+  - 7.3
+  - 7.4
   - nightly
 
-# optionally set up exclutions and allowed failures in the matrix
-matrix:
+env:
+  - TESTS=lint
+  - TESTS=all
+
+jobs:
+  exclude:
+    - php: 7.0
+      env: TESTS=all
+    - php: 7.1
+      env: TESTS=all
+    - php: 7.2
+      env: TESTS=lint
+    - php: 7.3
+      env: TESTS=lint
+    - php: 7.4
+      env: TESTS=lint
   fast_finish: true
   allow_failures:
     - php: nightly
 
+before_install:
+  - travis_retry pecl install ast
+  - travis_retry pecl install igbinary
+
 install:
   - travis_retry composer config -g github-oauth.github.com $GH_TOKEN
-  - travis_retry composer install
+  - if [ "$TESTS" = "all" ]; then composer install; else composer install --no-dev; fi
 
 script:
-  - vendor/bin/coding-standard parallel-lint -t $TRAVIS_BRANCH
-  - vendor/bin/coding-standard sniff -t $TRAVIS_BRANCH
-  - vendor/bin/coding-standard mess-detect -t $TRAVIS_BRANCH
-  - vendor/bin/coding-standard copy-paste-detect
-  - php vendor/bin/phpunit --config phpunit.xml
+  - if [ "$TESTS" = "all" ]; then vendor/bin/dep ci; else vendor/bin/dep sca:lint; fi
 
 # allow builds for all branches
 branches:

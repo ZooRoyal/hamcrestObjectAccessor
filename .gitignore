@@ -1,6 +1,13 @@
-vendor
+/vendor/
 phpdocker
 public
 docker-compose.yml
 .idea
 composer.lock
+
+/tmp/*
+!/tmp/.keep
+
+.phpunit.result.cache
+
+infection.log
